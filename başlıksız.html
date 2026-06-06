@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>For Pi Network - Adam Asmaca</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1a0933 0%, #0f051d 100%);
+            color: #ffffff;
+            height: 100vh;
+            width: 100vw;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center;
+            padding: 3vh 2vw;
+            overflow: hidden;
+        }
+
+        /* Üst Başlık Alanı */
+        .header-container {
+            text-align: center;
+            margin-bottom: 2vh;
+            flex-shrink: 0;
+            z-index: 10;
+        }
+
+        /* Sadece 'For Pi Network' yazısı Times New Roman yapıldı */
+        header {
+            font-family: 'Times New Roman', Times, serif;
+            font-style: italic;
+            font-size: 3.8vh; 
+            font-weight: 800;
+            color: #e5a93c; /* Pi Network Gold */
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            text-shadow: 0 0 15px rgba(229, 169, 60, 0.5);
+            animation: pulseText 3s infinite alternate;
+        }
+
+        .designer-tag {
+            font-family: 'Comic Sans MS', 'Comic Sans', cursive, sans-serif;
+            font-style: italic;
+            font-size: 2vh;
+            color: #aaaaaa;
+            letter-spacing: 1.5px;
+            margin-top: 0.5vh;
+        }
+
+        .designer-tag span {
+            color: #b39ddb;
+            font-weight: 700;
+            text-shadow: 0 0 8px rgba(179, 157, 219, 0.4);
+        }
+
+        /* Ana İçerik Alanı */
+        .main-container {
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 24px;
+            padding: 3vh 4vw;
+            width: 90%;
+            max-width: 650px; 
+            height: 72vh; 
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            z-index: 5;
+        }
+
+        /* Ekran Geçişleri */
+        .screen {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+            animation: fadeIn 0.5s ease-in-out forwards;
+        }
+
+        .screen.active {
+            display: flex;
+        }
+
+        /* --- GİRİŞ EKRANI --- */
+        h1 {
+            font-size: 5.5vh; 
+            font-weight: 900;
+            letter-spacing: 2px;
+            background: linear-gradient(to right, #ffffff, #b39ddb);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 4vh;
+            text-shadow: 0 4px 20px rgba(0,0,0,0.6);
+        }
+
+        .start-btn {
+            background: linear-gradient(45deg, #e5a93c, #8a2be2);
+            color: white;
+            border: none;
+            padding: 2vh 6vw; 
+            font-size: 3vh; 
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 0 25px rgba(229, 169, 60, 0.4), 0 0 40px rgba(138, 43, 226, 0.4);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            outline: none;
+            animation: bounceBtn 2s infinite ease-in-out;
+        }
+
+        .start-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 35px rgba(229, 169, 60, 0.7), 0 0 55px rgba(138, 43, 226, 0.7);
+        }
+
+        .start-btn::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -60%;
+            width: 30%;
+            height: 200%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: rotate(30deg);
+            animation: sheen 4s infinite linear;
+        }
+
+        /* --- OYUN EKRANI --- */
+        .game-layout {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            height: 100%;
+            width: 100%;
+        }
+
+        .game-status {
+            font-size: 2.5vh;
+            color: #b39ddb;
+            font-weight: 600;
+        }
+
+        /* Adam Asmaca Çizimi */
+        .hangman-svg {
+            height: 22vh; 
+            max-height: 200px;
+            stroke: #ffffff;
+            stroke-width: 4.5;
+            fill: none;
+            stroke-linecap: round;
+        }
+
+        .hangman-part {
+            display: none;
+        }
+
+        .hangman-part.visible {
+            display: block;
+        }
+
+        .word-display {
+            font-size: 4.5vh; 
+            letter-spacing: 10px;
+            font-weight: bold;
+            color: #ffffff;
+            text-shadow: 0 0 10px rgba(255,255,255,0.3);
+            margin: 1vh 0;
+        }
+
+        /* Klavye */
+        .keyboard {
+            display: grid;
+            grid-template-columns: repeat(10, 1fr); 
+            gap: 0.8vh 0.6vw;
+            width: 100%;
+        }
+
+        .key {
+            background: rgba(255, 255, 255, 0.08);
+            color: white;
+            border: 1.5px solid rgba(255, 255, 255, 0.15);
+            padding: 1.2vh 0; 
+            font-size: 2vh;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .key:hover:not(:disabled) {
+            background: #8a2be2;
+            border-color: #b39ddb;
+            transform: translateY(-2px);
+        }
+
+        .key:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .key.correct {
+            background: #2ecc71 !important;
+            border-color: #2ecc71 !important;
+        }
+
+        .key.wrong {
+            background: #e74c3c !important;
+            border-color: #e74c3c !important;
+        }
+
+        /* Sonuç Paneli */
+        .result-panel {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .result-message {
+            font-size: 3vh;
+            font-weight: bold;
+            margin-bottom: 1.5vh;
+        }
+        .success { color: #2ecc71; }
+        .danger { color: #e74c3c; }
+
+        .action-btn {
+            background: #e5a93c;
+            color: #1a0933;
+            border: none;
+            padding: 1.5vh 4vw;
+            font-size: 2.2vh;
+            font-weight: bold;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .action-btn:hover {
+            background: #ffffff;
+            transform: scale(1.05);
+        }
+
+        /* Animasyonlar */
+        @keyframes pulseText {
+            0% { opacity: 0.85; transform: scale(0.98); }
+            100% { opacity: 1; transform: scale(1.02); }
+        }
+        @keyframes bounceBtn {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+        @keyframes sheen {
+            0% { left: -60%; }
+            22% { left: 140%; }
+            100% { left: 140%; }
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ÜST BAŞLIK ALANI -->
+    <div class="header-container">
+        <header>For Pi Network</header>
+        <div class="designer-tag">Designer : <span>Quido</span></div>
+    </div>
+
+    <!-- ANA OYUN ALANI -->
+    <div class="main-container">
+        
+        <!-- 1. EKRAN: GİRİŞ EKRANI -->
+        <div id="welcome-screen" class="screen active">
+            <h1>Adam Asmaca</h1>
+            <button class="start-btn" onclick="initGame()">BAŞLAT</button>
+        </div>
+
+        <!-- 2. EKRAN: OYUN EKRANI -->
+        <div id="game-screen" class="screen">
+            <div class="game-layout">
+                <div class="game-status" id="lives-left">Kalan Hak: 6</div>
+                
+                <!-- Adam Asmaca Görseli -->
+                <svg class="hangman-svg" viewBox="0 0 100 100">
+                    <line x1="10" y1="95" x2="90" y2="95" />
+                    <line x1="30" y1="95" x2="30" y2="10" />
+                    <line x1="30" y1="10" x2="70" y2="10" />
+                    <line x1="70" y1="10" x2="70" y2="25" />
+                    
+                    <circle id="part-0" class="hangman-part" cx="70" cy="33" r="8" />
+                    <line id="part-1" class="hangman-part" x1="70" y1="41" x2="70" y2="65" />
+                    <line id="part-2" class="hangman-part" x1="70" y1="48" x2="52" y2="40" />
+                    <line id="part-3" class="hangman-part" x1="70" y1="48" x2="88" y2="40" />
+                    <line id="part-4" class="hangman-part" x1="70" y1="65" x2="55" y2="85" />
+                    <line id="part-5" class="hangman-part" x1="70" y1="65" x2="85" y2="85" />
+                </svg>
+
+                <!-- Gizli Kelime -->
+                <div class="word-display" id="word-display">_ _ _ _ _</div>
+
+                <!-- Sanal Klavye -->
+                <div class="keyboard" id="keyboard"></div>
+
+                <!-- Sonuç ve Yeniden Başlatma Paneli -->
+                <div id="result-area" class="result-panel" style="display: none;">
+                    <div id="result-text" class="result-message"></div>
+                    <button class="action-btn" onclick="initGame()">Yeniden Başla</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        const words = ["PIONEER", "BLOCKCHAIN", "CRYPTO", "NETWORK", "DIGITAL", "MINING", "FUTURE", "WALLETS"];
+        let selectedWord = "";
+        let guessedLetters = [];
+        let maxWrong = 6;
+        let wrongGuesses = 0;
+
+        const alphabet = "ABCÇDEFGĞHIİJKLMNOÖPRSŞTUÜVYZ";
+
+        function initGame() {
+            document.getElementById("welcome-screen").classList.remove("active");
+            document.getElementById("game-screen").classList.add("active");
+
+            wrongGuesses = 0;
+            guessedLetters = [];
+            selectedWord = words[Math.floor(Math.random() * words.length)];
+            
+            document.getElementById("result-area").style.display = "none";
+            document.getElementById("lives-left").innerText = `Kalan Hak: ${maxWrong}`;
+            
+            for(let i=0; i<maxWrong; i++) {
+                document.getElementById(`part-${i}`).classList.remove("visible");
+            }
+
+            updateWordDisplay();
+            createKeyboard();
+        }
+
+        function updateWordDisplay() {
+            let displayStr = "";
+            for (let char of selectedWord) {
+                if (guessedLetters.includes(char)) {
+                    displayStr += char + " ";
+                } else {
+                    displayStr += "_ ";
+                }
+            }
+            document.getElementById("word-display").innerText = displayStr.trim();
+
+            if (!displayStr.includes("_")) {
+                endGame(true);
+            }
+        }
+
+        function createKeyboard() {
+            const keyboardDiv = document.getElementById("keyboard");
+            keyboardDiv.innerHTML = "";
+            keyboardDiv.style.display = "grid";
+
+            for (let letter of alphabet) {
+                const btn = document.createElement("button");
+                btn.innerText = letter;
+                btn.className = "key";
+                btn.onclick = () => handleGuess(letter, btn);
+                keyboardDiv.appendChild(btn);
+            }
+        }
+
+        function handleGuess(letter, buttonElement) {
+            guessedLetters.push(letter);
+            buttonElement.disabled = true;
+
+            if (selectedWord.includes(letter)) {
+                buttonElement.classList.add("correct");
+                updateWordDisplay();
+            } else {
+                buttonElement.classList.add("wrong");
+                if (wrongGuesses < maxWrong) {
+                    document.getElementById(`part-${wrongGuesses}`).classList.add("visible");
+                }
+                wrongGuesses++;
+                document.getElementById("lives-left").innerText = `Kalan Hak: ${maxWrong - wrongGuesses}`;
+
+                if (wrongGuesses >= maxWrong) {
+                    endGame(false);
+                }
+            }
+        }
+
+        function endGame(isWin) {
+            document.getElementById("keyboard").style.display = "none";
+            const resultArea = document.getElementById("result-area");
+            const resultText = document.getElementById("result-text");
+            resultArea.style.display = "flex";
+
+            if (isWin) {
+                resultText.innerText = "Tebrikler, Kazandınız! 🎉";
+                resultText.className = "result-message success";
+            } else {
+                resultText.innerText = `Kaybettiniz! Doğru Kelime: ${selectedWord} 😢`;
+                resultText.className = "result-message danger";
+                document.getElementById("word-display").innerText = selectedWord.split("").join(" ");
+            }
+        }
+    </script>
+</body>
+</html>
